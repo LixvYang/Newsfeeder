@@ -2,13 +2,26 @@ package handler
 
 import(
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"newsfeeder/platform/newsfeed"
+	"net/http" 
 )
 
-func NewfeedPost() gin.HandlerFunc{
+type newsfeedPostRequest struct {
+	Title string `json:"title"`
+	Post string `json:"post"`
+}
+
+func NewsfeedPost(feed newsfeed.Adder) gin.HandlerFunc{
 	return func(c *gin.Context){
-		c.JSON(http.StatusOK,map[string]string{
-			"hello":"found me",
-		})
+		requestBody := newsfeedPostRequest{}
+		c.Bind(&requestBody)
+
+		item := newsfeed.Item{
+			Title:requestBody.Title,
+			Post:requestBody.Post,
+		}
+		feed.Add(item)
+
+		c.Status(http.StatusNoContent)
 	}
 }
